@@ -47,7 +47,7 @@ export const  classifyText = async(req,res) =>{
         console.log(textClassificationResponse);
         res.status(200).json({
             success: true,
-            message: "Text classified successfully",
+            message: `Text seems to be ${textClassificationResponse[0].label}`,
             data: textClassificationResponse
         });
     }
@@ -61,5 +61,39 @@ export const  classifyText = async(req,res) =>{
     }
 
 };
+
+export const translateText = async(req,res)=>{
+
+    const {userText} = req.body;
+    const defualtText =" Hi , how are you?";
+
+    const textToTranslate =userText|| defualtText;
+
+    try{
+        const translateTextResponse = await huggingFaceClient.translation({
+            model:"facebook/mbart-large-50-many-to-many-mmt",
+            inputs:textToTranslate,
+            parameters:{
+                src_lang:"en_XX",
+                tgt_lang:"fr_XX"
+            }
+        });
+
+        res.status(200).json({
+            success:true,
+            message:"Translation Successfull",
+            translatedText: translateTextResponse.translation_text
+        })
+    }
+    catch(error){
+        res.status(500).json({
+            success:false,
+            message:"Translation not Successfull",
+            translatedText: null,
+            error:error.message
+        })
+    }
+
+}
 
 
